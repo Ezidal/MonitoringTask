@@ -21,7 +21,7 @@ login:
 		curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 		chmod +x wp-cli.phar && \
 		mv wp-cli.phar /usr/local/bin/wp && \
-		wp core install --url=localhost --title=\"site\" --admin_user=test --admin_password=\"test\" --admin_email=test@test.com --allow-root && \
+		wp core install --url=localhost --title=\"site\" --admin_user=test --admin_password=\"test\" --admin_email=test@test.test --allow-root && \
 		echo 'Установка плагина Redis...' && \
 		wp plugin install redis-cache --activate --allow-root && \
 		echo 'Включение Redis...' && \
@@ -46,14 +46,13 @@ down:
 
 # Пересборка и перезапуск всех сервисов
 .PHONY: restart
-restart: down prune up
+restart: down prune up login
 
 # Проверка статуса контейнеров
 .PHONY: ps
 ps:
-	docker-compose -f $(DOCKER_COMPOSE_TASK) ps -a
-	docker-compose -f $(MONITORING) ps -a
+	docker ps -a
 
 .PHONY: prune
 prune:
-	docker volume prune -a
+	docker volume prune -a 

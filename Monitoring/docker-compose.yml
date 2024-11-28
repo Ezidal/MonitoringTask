@@ -23,8 +23,6 @@ services:
   loki:
     container_name: loki
     image: grafana/loki
-    ports: 
-     - "3100:3100"
     volumes:
       - ./loki/local-config.yaml:/etc/loki/local-config.yaml
     networks:
