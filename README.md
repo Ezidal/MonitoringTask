@@ -33,6 +33,7 @@ Keycloak - http://localhost:8771/admin/master/console/
 Пароль - admin
 
 Promtail - http://localhost:9080/targets
+
 ---------------------------------
 make up - запуск всех контейнеров
 make login - автонастройка wordpress
