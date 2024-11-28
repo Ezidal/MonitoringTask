@@ -1,0 +1,237 @@
+services:
+
+  wordpress:
+    container_name: wordpress
+    image: wordpress
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${MAX_SIZE_LOG}"
+        max-file: "${MAX_FILE_LOG}"
+        tag: "{{.Name}}|{{.ImageName}}"
+    environment:
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      WORDPRESS_CONFIG_EXTRA: ${WORDPRESS_CONFIG_EXTRA}
+    volumes:
+      - wordpress:/var/www/html
+      - ./wordpress/wp-config.php:/var/www/html/wp-config.php
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - ngx_wp
+      - wp_db_rd
+      - universal
+
+  db:
+    container_name: mysql
+    image: mysql:8.0
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${MAX_SIZE_LOG}"
+        max-file: "${MAX_FILE_LOG}"
+        tag: "{{.Name}}|{{.ImageName}}"
+    env_file:
+      - .env
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    networks:
+      - wp_db_rd
+    depends_on:
+      - promtail
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+     
+  nginx:
+    container_name: nginx
+    image: nginx
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${MAX_SIZE_LOG}"
+        max-file: "${MAX_FILE_LOG}"
+        tag: "{{.Name}}|{{.ImageName}}"
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d/
+    depends_on:
+      - wordpress
+      # keycloak:
+      #   condition: service_healthy
+    networks:
+      - ngx_wp
+
+
+  redis:
+    container_name: redis
+    image: redis:alpine
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${MAX_SIZE_LOG}"
+        max-file: "${MAX_FILE_LOG}"
+        tag: "{{.Name}}|{{.ImageName}}"
+    #команда написана в логах при загрузке 
+    command: redis-server redis.conf
+    volumes:
+      - ./redis/redis.conf:/data/redis.conf
+    networks:
+      - wp_db_rd
+    depends_on:
+      - promtail
+
+########## мониторинг
+  node-exporter:
+    image: prom/node-exporter
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${MAX_SIZE_LOG}"
+        max-file: "${MAX_FILE_LOG}"
+        tag: "{{.Name}}|{{.ImageName}}"
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+     - universal
+    depends_on:
+      - promtail
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor 
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${MAX_SIZE_LOG}"
+        max-file: "${MAX_FILE_LOG}"
+        tag: "{{.Name}}|{{.ImageName}}"
+    # ports:
+    #   - "9101:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw 
+      - /sys:/sys:ro 
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - universal
+    depends_on:
+      - promtail
+
+  promtail:
+    container_name: promtail
+    image: grafana/promtail
+    labels:
+      - promtail=labe
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${MAX_SIZE_LOG}"
+        max-file: "${MAX_FILE_LOG}"
+        tag: "{{.Name}}|{{.ImageName}}"
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./promtail/config.yaml:/etc/promtail/config.yaml
+    command:
+      - '-config.file=/etc/promtail/config.yaml'
+    ports:
+      - "9080:9080"
+    networks:
+      - universal
+  
+  keycloak-postgres:
+    image: library/postgres
+    container_name: postgres
+    restart: on-failure
+    #volumes:
+    #  - keycloak-postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: pg_isready -d postgres
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    ports:
+      - "5432:5432"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    networks:
+      - universal
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0.7
+    container_name: keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloakdb:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+
+#      KC_HOSTNAME: 192.168.4.62
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8771
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+
+      KC_HTTP_PORT: 8771
+      KC_LOG_LEVEL: info
+      KC_METRICS_ENABLED: true
+      KC_HEALTH_ENABLED: true
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev --hostname-debug=true
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    depends_on:
+      - keycloakdb
+    ports:
+      - 8771:8771
+    networks:
+      - universal
+
+  keycloakdb:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+    container_name: keycloak_db
+    networks:
+      - universal
+###############
+volumes:
+  wordpress:
+  db:
+  nginx:
+  postgres_data:
+
+networks:
+  ngx_wp:
+  wp_db_rd:
+  universal:
+    name: monitor
