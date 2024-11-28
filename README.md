@@ -8,6 +8,10 @@ git clone https://github.com/Ezidal/MonitoringTask.git
 ```
 cd MonitoringTask
 ```
+3) Создаем сеть в которой у нас будут работать наши контейнеры
+```
+docker create network universal
+```
 3) Для запуска приложения используем команду
 ```
 make up
@@ -33,12 +37,18 @@ Keycloak - http://localhost:8771/admin/master/console/
 Пароль - admin
 
 Promtail - http://localhost:9080/targets
+
 ---------------------------------
 make up - запуск всех контейнеров
+
 make login - автонастройка wordpress
+
 make down - остановить и удалить все контейнеры
+
 make ps - вывести информацию обо всех контейнерах
+
 make prune - очистить volumes всех контейнеров, вернуть к изначальному виду окружение
+
 make restart - полный перезапуск всех контейнеров, удаление volumes
 
 
