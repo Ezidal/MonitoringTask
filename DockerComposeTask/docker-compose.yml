@@ -19,7 +19,7 @@ services:
       - wordpress:/var/www/html
       - ./wordpress/wp-config.php:/var/www/html/wp-config.php
     #  - ./wordpress/reds-cache/:/var/www/html/wp-content/plugins/redis-cache/
-      - ./wordpress/daggerhart-openid-connect-generic/:/var/www/html/wp-content/plugins/daggerhart-openid-connect-generic/
+    #  - ./wordpress/daggerhart-openid-connect-generic/:/var/www/html/wp-content/plugins/daggerhart-openid-connect-generic/
     ports:
       - "8080:8080"
     depends_on:
@@ -157,35 +157,16 @@ services:
       - "9080:9080"
     networks:
       - universal
-  
-  keycloak-postgres:
-    image: library/postgres
-    container_name: postgres
-    restart: on-failure
-    #volumes:
-    #  - keycloak-postgres:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-    healthcheck:
-      test: pg_isready -d postgres
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
-    ports:
-      - "5432:5432"
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-    networks:
-      - universal
 
   keycloak:
     image: quay.io/keycloak/keycloak:23.0.7
     container_name: keycloak
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${MAX_SIZE_LOG}"
+        max-file: "${MAX_FILE_LOG}"
+        tag: "{{.Name}}|{{.ImageName}}"
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://keycloakdb:5432/keycloak
@@ -201,14 +182,15 @@ services:
       KC_HEALTH_ENABLED: true
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-      KEYCLOAK_IMPORT: /opt/keycloak/data/import/realm-export1.json
+      KEYCLOAK_IMPORT: /opt/keycloak/data/import/realm-export.json
+      KC_USERS: realm_file
     command: start-dev --hostname-debug=true --import-realm
     # volumes:
     #   - ./keycloak/:/opt/keycloak/data/import/
     volumes:
       - type: bind
-        source: ./keycloak/realm-export1.json
-        target: /opt/keycloak/data/import/realm-export1.json
+        source: ./keycloak/wp-realm.json
+        target: /opt/keycloak/data/import/realm-export.json
         read_only: true
     depends_on:
       - keycloakdb
@@ -221,6 +203,12 @@ services:
     image: postgres:15
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${MAX_SIZE_LOG}"
+        max-file: "${MAX_FILE_LOG}"
+        tag: "{{.Name}}|{{.ImageName}}"
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
