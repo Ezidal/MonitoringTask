@@ -8,6 +8,10 @@ git clone https://github.com/Ezidal/MonitoringTask.git
 ```
 cd MonitoringTask
 ```
+3) Создаем сеть в которой у нас будут работать наши контейнеры
+```
+docker create network universal
+```
 3) Для запуска приложения используем команду
 ```
 make up
