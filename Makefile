@@ -12,6 +12,23 @@ up:
 	docker-compose -f $(DOCKER_COMPOSE_TASK) up -d
 	docker-compose -f $(MONITORING) up -d
 
+.PHONY: login
+
+login:
+	docker exec -it wordpress /bin/sh -c "\
+		docker-entrypoint.sh apache2-foreground & \
+		sleep 7 && \
+		curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+		chmod +x wp-cli.phar && \
+		mv wp-cli.phar /usr/local/bin/wp && \
+		wp core install --url=localhost --title=\"site\" --admin_user=test --admin_password=\"test\" --admin_email=test@test.com --allow-root && \
+		echo 'Установка плагина Redis...' && \
+		wp plugin install redis-cache --activate --allow-root && \
+		echo 'Включение Redis...' && \
+		wp redis enable --allow-root && \
+		echo 'Настройка завершена!' && \
+		wait \
+	"
 # Остановка всех сервисов из обоих Docker Compose файлов
 .PHONY: down
 down:
@@ -20,7 +37,7 @@ down:
 
 # Пересборка и перезапуск всех сервисов
 .PHONY: restart
-restart: down up
+restart: down prune up
 
 # Проверка статуса контейнеров
 .PHONY: ps
@@ -30,7 +47,4 @@ ps:
 
 .PHONY: prune
 prune:
-	docker-compose -f $(DOCKER_COMPOSE_TASK) down
-	docker-compose -f $(MONITORING) down
 	docker volume prune -a
-	docker system prune -a
