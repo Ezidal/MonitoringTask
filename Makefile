@@ -9,8 +9,8 @@ all: up
 # Запуск всех сервисов из обоих Docker Compose файлов
 .PHONY: up
 up:
-	docker-compose -f $(DOCKER_COMPOSE_TASK) up -d
-	docker-compose -f $(MONITORING) up -d
+	docker compose -f $(DOCKER_COMPOSE_TASK) up -d
+	docker compose -f $(MONITORING) up -d
 
 .PHONY: login
 
