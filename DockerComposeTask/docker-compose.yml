@@ -164,25 +164,23 @@ services:
         max-file: "${MAX_FILE_LOG}"
         tag: "{{.Name}}|{{.ImageName}}"
     environment:
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://keycloakdb:5432/keycloak
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: password
-      KC_HOSTNAME: localhost
-      KC_HOSTNAME_PORT: 8771
-      KC_HOSTNAME_STRICT: false
-      KC_HOSTNAME_STRICT_HTTPS: false
-      KC_HTTP_PORT: 8771
-      KC_LOG_LEVEL: info
-      KC_METRICS_ENABLED: true
-      KC_HEALTH_ENABLED: true
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: ${KC_DB}
+      KC_DB_URL: ${KC_DB_URL}
+      KC_DB_USERNAME: ${KC_DB_USERNAME}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
+      KC_HOSTNAME: ${KC_HOSTNAME}
+      KC_HOSTNAME_PORT: ${KC_HOSTNAME_PORT}
+      KC_HOSTNAME_STRICT: ${KC_HOSTNAME_STRICT}
+      KC_HOSTNAME_STRICT_HTTPS: ${KC_HOSTNAME_STRICT_HTTPS}
+      KC_HTTP_PORT: ${KC_HTTP_PORT}
+      KC_LOG_LEVEL: ${KC_LOG_LEVEL}
+      KC_METRICS_ENABLED: ${KC_METRICS_ENABLED}
+      KC_HEALTH_ENABLED: ${KC_HEALTH_ENABLED}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KEYCLOAK_IMPORT: /opt/keycloak/data/import/realm-export.json
       KC_USERS: realm_file
     command: start-dev --hostname-debug=true --import-realm
-    # volumes:
-    #   - ./keycloak/:/opt/keycloak/data/import/
     volumes:
       - type: bind
         source: ./keycloak/wp-realm.json
@@ -206,12 +204,13 @@ services:
         max-file: "${MAX_FILE_LOG}"
         tag: "{{.Name}}|{{.ImageName}}"
     environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     container_name: keycloak_db
     networks:
       - universal
+
 ###############
 volumes:
   wordpress:
