@@ -31,7 +31,6 @@ login:
 		echo 'Настройка завершена!' && \
 		wait \
 	"
-	docker exec -it wordpress wp option update openid_connect_generic_settings 'a:26:{s:10:\"login_type\";s:4:\"auto\";s:9:\"client_id\";s:7:\"wpadmin\";s:13:\"client_secret\";s:32:\"**********\";s:5:\"scope\";s:20:\"openid profile email\";s:14:\"endpoint_login\";s:70:\"http://localhost:8771/realms/wp/protocol/openid-connect/auth\";s:17:\"endpoint_userinfo\";s:70:\"http://keycloak:8771/realms/wp/protocol/openid-connect/userinfo\";s:14:\"endpoint_token\";s:67:\"http://keycloak:8771/realms/wp/protocol/openid-connect/token\";s:20:\"endpoint_end_session\";s:72:\"http://localhost:8771/realms/wp/protocol/openid-connect/logout\";s:10:\"acr_values\";s:0:\"\";s:12:\"identity_key\";s:18:\"preferred_username\";s:12:\"no_sslverify\";s:1:\"1\";s:20:\"http_request_timeout\";s:1:\"5\";s:15:\"enforce_privacy\";s:1:\"0\";s:22:\"alternate_redirect_uri\";s:1:\"0\";s:12:\"nickname_key\";s:18:\"preferred_username\";s:12:\"email_format\";s:7:\"{email}\";s:18:\"displayname_format\";s:0:\"\";s:22:\"identify_with_username\";s:1:\"0\";s:16:\"state_time_limit\";s:3:\"180\";s:20:\"token_refresh_enable\";s:1:\"1\";s:19:\"link_existing_users\";s:1:\"1\";s:24:\"create_if_does_not_exist\";s:1:\"1\";s:18:\"redirect_user_back\";s:1:\"1\";s:18:\"redirect_on_logout\";s:1:\"1\";s:14:\"enable_logging\";s:1:\"0\";s:9:\"log_limit\";s:4:\"1000\";}' --allow-root
 	
 # Остановка всех сервисов из обоих Docker Compose файлов
 .PHONY: down

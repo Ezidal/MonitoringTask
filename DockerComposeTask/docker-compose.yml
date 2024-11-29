@@ -18,8 +18,7 @@ services:
     volumes:
       - wordpress:/var/www/html
       - ./wordpress/wp-config.php:/var/www/html/wp-config.php
-    #  - ./wordpress/reds-cache/:/var/www/html/wp-content/plugins/redis-cache/
-    #  - ./wordpress/daggerhart-openid-connect-generic/:/var/www/html/wp-content/plugins/daggerhart-openid-connect-generic/
+    #  - ./wordpress/openid-connect-generic.php:/var/www/html/wp-content/plugins/daggerhart-openid-connect-generic/openid-connect-generic.php
     depends_on:
       db:
         condition: service_healthy
@@ -71,8 +70,6 @@ services:
       - ./nginx:/etc/nginx/conf.d/
     depends_on:
       - wordpress
-      # keycloak:
-      #   condition: service_healthy
     networks:
       - ngx_wp
 
@@ -119,8 +116,6 @@ services:
         max-size: "${MAX_SIZE_LOG}"
         max-file: "${MAX_FILE_LOG}"
         tag: "{{.Name}}|{{.ImageName}}"
-    # ports:
-    #   - "9101:8080"
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:rw 
@@ -166,8 +161,8 @@ services:
     environment:
       KC_DB: ${KC_DB}
       KC_DB_URL: ${KC_DB_URL}
-      KC_DB_USERNAME: ${KC_DB_USERNAME}
-      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
+      KC_DB_USERNAME: ${POSTGRES_USER}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
       KC_HOSTNAME: ${KC_HOSTNAME}
       KC_HOSTNAME_PORT: ${KC_HOSTNAME_PORT}
       KC_HOSTNAME_STRICT: ${KC_HOSTNAME_STRICT}
@@ -222,4 +217,4 @@ networks:
   ngx_wp:
   wp_db_rd:
   universal:
-    name: monitor
+    external: true
