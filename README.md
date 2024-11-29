@@ -16,10 +16,23 @@ docker create network universal
 ```
 make up
 ```
-4) Дождавшись загрузки контейнеров используем следующую команду для автоматической регистрации и настройки wordpress
+4) Дождавшись загрузки контейнеров используем следующую команду для регистрации и настройки wordpress
 ```
 make login
 ```
+Настройка на этом не закаканчивается, нужно провалиться в настройки плагина OpenId Client и внести вот эти адреса (или попросить это сделать создателя)
+
+http://localhost:8771/realms/wp/protocol/openid-connect/auth
+
+http://keycloak:8771/realms/wp/protocol/openid-connect/userinfo
+
+http://keycloak:8771/realms/wp/protocol/openid-connect/token
+
+http://localhost:8771/realms/wp/protocol/openid-connect/logout
+
+![image](https://github.com/user-attachments/assets/3a5470d6-ac80-46b2-9709-109f1769b573)
+
+
 5) Приложение запущено и настроено, ознакомиться с работой можно по следующим ссылкам:
 --------------------------------
 Wordpress - http://localhost/wp-admin
