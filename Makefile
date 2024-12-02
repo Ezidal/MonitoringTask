@@ -16,7 +16,6 @@ up:
 
 login:
 	docker exec -it wordpress /bin/sh -c "\
-		docker-entrypoint.sh apache2-foreground & \
 		sleep 7 && \
 		curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 		chmod +x wp-cli.phar && \
@@ -29,7 +28,6 @@ login:
 		chown -R www-data:www-data /var/www/html/ && \
 		wp plugin install daggerhart-openid-connect-generic --activate --allow-root && \
 		echo 'Настройка завершена!' && \
-		wait \
 	"
 	
 # Остановка всех сервисов из обоих Docker Compose файлов
