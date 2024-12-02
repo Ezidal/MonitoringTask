@@ -10,7 +10,7 @@ cd MonitoringTask
 ```
 3) Создаем сеть в которой у нас будут работать наши контейнеры
 ```
-docker create network universal
+docker network create universal
 ```
 3) Для запуска приложения используем команду
 ```
