@@ -35,8 +35,8 @@ login:
 # Остановка всех сервисов из обоих Docker Compose файлов
 .PHONY: down
 down:
-	docker-compose -f $(DOCKER_COMPOSE_TASK) down
-	docker-compose -f $(MONITORING) down
+	docker compose -f $(DOCKER_COMPOSE_TASK) down
+	docker compose -f $(MONITORING) down
 
 # Пересборка и перезапуск всех сервисов
 .PHONY: restart
