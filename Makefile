@@ -49,4 +49,5 @@ ps:
 
 .PHONY: prune
 prune:
+	make down
 	docker volume prune -a 
