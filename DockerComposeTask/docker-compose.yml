@@ -53,8 +53,8 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 3s
       timeout: 3s
-      retries: 5
-      start_period: 5s
+      retries: 10
+      start_period: 10s
      
   nginx:
     container_name: nginx
