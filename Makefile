@@ -7,6 +7,7 @@ MONITORING = ./Monitoring/docker-compose.yml
 all: up
 
 up:
+	docker network create universal
 	docker compose -f $(DOCKER_COMPOSE_TASK) up -d
 	docker compose -f $(MONITORING) up -d
 
@@ -32,6 +33,8 @@ down:
 	docker compose down
 	docker compose -f $(DOCKER_COMPOSE_TASK) down
 	docker compose -f $(MONITORING) down
+	docker network rm universal
+
 
 restart: down prune up login
 
