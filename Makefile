@@ -2,10 +2,6 @@
 DOCKER_COMPOSE_TASK = ./DockerComposeTask/docker-compose.yml
 MONITORING = ./Monitoring/docker-compose.yml
 
-# Цель по умолчанию
-.PHONY: all prune up login down restart ps encrypt decrypt
-all: up
-
 up:
 	docker network create universal
 	docker compose -f $(DOCKER_COMPOSE_TASK) up -d
@@ -30,7 +26,6 @@ login:
 	"
 	
 down:
-	docker compose down
 	docker compose -f $(DOCKER_COMPOSE_TASK) down
 	docker compose -f $(MONITORING) down
 	docker network rm universal
