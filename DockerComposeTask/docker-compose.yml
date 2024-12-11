@@ -47,6 +47,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     networks:
       - wp_db_rd
+      - universal
     depends_on:
       - promtail
     healthcheck:
@@ -204,6 +205,14 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     container_name: keycloak_db
+    networks:
+      - universal
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 1020:8080
     networks:
       - universal
 
